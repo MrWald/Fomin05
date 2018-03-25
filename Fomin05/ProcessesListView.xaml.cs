@@ -1,4 +1,5 @@
-﻿using System.Windows.Controls;
+﻿using System;
+using System.Windows.Controls;
 
 namespace Fomin05
 {
@@ -7,10 +8,10 @@ namespace Fomin05
     /// </summary>
     internal partial class ProcessesListView : UserControl
     {
-        public ProcessesListView()
+        public ProcessesListView(Action<bool> showLoaderAction)
         {
             InitializeComponent();
-            DataContext = new ProcessesListViewModel();
+            DataContext = new ProcessesListViewModel(showLoaderAction);
         }
     }
 }

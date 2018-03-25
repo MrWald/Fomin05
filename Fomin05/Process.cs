@@ -3,93 +3,98 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Management;
+using System.Threading;
 
 namespace Fomin05
 {
     class Process
     {
-        private readonly PerformanceCounter _ramCounter;
-        private readonly PerformanceCounter _cpuCounter;
-        private readonly System.Diagnostics.Process _process;
-
         #region Properties
+
+        public PerformanceCounter RamCounter { get; }
+
+        public PerformanceCounter CpuCounter { get; }
+
         public string Name
         {
-            get { return _process.ProcessName; }
+            get;
         }
 
         public int Id
         {
-            get { return _process.Id; }
+            get;
         }
 
         public bool IsActive
         {
-            get { return _process.Responding; }
+            get;
         }
 
         public string CpuTaken
         {
-            get
-            {
-                return $"{_cpuCounter.NextValue()} %";
-            }
+            get;
+            set;
         }
 
         public string RamTaken
         {
-            get { return $"{_ramCounter.NextValue() / 1024 / 1024} MB"; }
+            get;
+            set;
         }
 
         public int ThreadsNumber
         {
-            get { return _process.Threads.Count; }
+            get;
+            set;
         }
 
         public string Username
         {
-            get { return GetProcessOwner(_process.Id); }
+            get;
         }
 
         public string FilePath
         {
-            get
-            {
-                try
-                {
-                    return _process.MainModule.FileName;
-                }
-                catch (Win32Exception e)
-                {
-                    return e.Message;
-                }
-            }
+            get;
         }
 
         public string RunOn
         {
-            get
+            get;
+        }
+        #endregion
+
+        internal Process(System.Diagnostics.Process systemProcess)
+        {
+            RamCounter = new PerformanceCounter("Process", "Working Set", systemProcess.ProcessName);
+            CpuCounter = new PerformanceCounter("Process", "% Processor Time", systemProcess.ProcessName);
+            Name = systemProcess.ProcessName;
+            Id = systemProcess.Id;
+            IsActive = systemProcess.Responding;
+            CpuTaken = $"{CpuCounter.NextValue()} %";
+            RamTaken = $"{RamCounter.NextValue() / 1024 / 1024} MB";
+            ThreadsNumber = systemProcess.Threads.Count;
+            Username = GetProcessOwner(systemProcess.Id);
+            try
             {
-                try
-                {
-                    return _process.StartTime.ToString();
-                }
-                catch (Win32Exception e)
-                {
-                    return e.Message;
-                }
+                FilePath = systemProcess.MainModule.FileName;
+            }
+            catch (Win32Exception e)
+            {
+                FilePath = e.Message;
+            }
+
+            try
+            {
+                RunOn = systemProcess.StartTime.ToString();
+            }
+            catch (Win32Exception e)
+            {
+                RunOn = e.Message;
             }
         }
-#endregion
 
-        internal Process(ref System.Diagnostics.Process systemProcess)
-        {
-            _process = systemProcess;
-            _ramCounter = new PerformanceCounter("Process", "Working Set", _process.ProcessName);
-            _cpuCounter = new PerformanceCounter("Process", "% Processor Time", _process.ProcessName);
-        }
-
-        private string GetProcessOwner(int processId)
+        private static string GetProcessOwner(int processId)
         {
             string query = "Select * From Win32_Process Where ProcessID = " + processId;
             ManagementObjectSearcher searcher = new ManagementObjectSearcher(query);
@@ -109,7 +114,7 @@ namespace Fomin05
             return "NO OWNER";
         }
 
-        internal static IEnumerable<Process> GetProcesses()
+        /*internal static List<Process> GetProcesses()
         {
             System.Diagnostics.Process[] processes = System.Diagnostics.Process.GetProcesses();
             List<Process> myProcesses = new List<Process>(processes.Length);
@@ -118,6 +123,7 @@ namespace Fomin05
                 myProcesses.Add(new Process(ref processes[i]));
             }
             return myProcesses;
-        }
+        }*/
+        
     }
 }
