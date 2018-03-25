@@ -7,20 +7,21 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
 
 namespace Fomin05
 {
     internal class ProcessesListViewModel : INotifyPropertyChanged
     {
+        private Action<bool> _showLoaderAction;
         private ObservableCollection<Process> _processes;
-        private readonly Action<bool> _showLoaderAction;
         private readonly Thread _updateThread;
+        private Process _selectedProcess;
         private RelayCommand _endTaskCommand;
+        private RelayCommand _getInfoCommand;
+        private RelayCommand _openFileLocationCommand;
+        private InfoWindow _infoWindow;
 
         public bool IsItemSelected => SelectedProcess != null;
-
-        private Process _selectedProcess;
 
         public Process SelectedProcess
         {
@@ -47,16 +48,34 @@ namespace Fomin05
         {
             _showLoaderAction = showLoaderAction;
             _updateThread = new Thread(UpdateUsers);
-            InitializeUsers();
-            _updateThread.Start();
+            Thread initializationThread = new Thread(InitializeProcesses);
+            initializationThread.Start();
         }
 
-        public RelayCommand EndTaskCommand
-        {
-            get { return _endTaskCommand ?? (_endTaskCommand = new RelayCommand(EndTaskImpl)); }
-        }
+        public RelayCommand EndTaskCommand => _endTaskCommand ?? (_endTaskCommand = new RelayCommand(EndTaskImpl));
+        public RelayCommand GetInfoCommand => _getInfoCommand ?? (_getInfoCommand = new RelayCommand(GetInfoImpl));
+        public RelayCommand OpenFileLocationCommand => _openFileLocationCommand ?? (_openFileLocationCommand = new RelayCommand(OpenFileLocationImpl));
 
         private async void EndTaskImpl(object o)
+        {
+            await Task.Run(() =>
+            {
+                System.Windows.Application.Current.Dispatcher.Invoke(delegate
+                {
+                    System.Diagnostics.Process process = System.Diagnostics.Process.GetProcessById(SelectedProcess.Id);
+                    try
+                    {
+                        process.Kill();
+                    }
+                    catch (Win32Exception e)
+                    {
+                        MessageBox.Show(e.Message);
+                    }
+                });
+            });
+        }
+
+        private async void GetInfoImpl(object o)
         {
             try
             {
@@ -65,7 +84,16 @@ namespace Fomin05
                     System.Windows.Application.Current.Dispatcher.Invoke(delegate
                     {
                         System.Diagnostics.Process process = System.Diagnostics.Process.GetProcessById(SelectedProcess.Id);
-                        process.Kill();
+                        _infoWindow?.Close();
+                        try
+                        {
+                            _infoWindow = new InfoWindow(process);
+                            _infoWindow.Show();
+                        }
+                        catch (Win32Exception e)
+                        {
+                            MessageBox.Show(e.Message);
+                        }
                     });
                 });
             }
@@ -75,6 +103,22 @@ namespace Fomin05
             }
         }
 
+        private async void OpenFileLocationImpl(object o)
+        {
+            await Task.Run(() =>
+            {
+                System.Diagnostics.Process process = System.Diagnostics.Process.GetProcessById(SelectedProcess.Id);
+                try
+                {
+                    string fullPath = process.MainModule.FileName;
+                    System.Diagnostics.Process.Start("explorer.exe", fullPath.Remove(fullPath.LastIndexOf('\\')));
+                }
+                catch (Win32Exception e)
+                {
+                    MessageBox.Show(e.Message);
+                }
+            });
+        }
 
         private async void UpdateUsers()
         {
@@ -111,19 +155,16 @@ namespace Fomin05
             }
         }
 
-        private async void InitializeUsers()
+        private async void InitializeProcesses()
         {
-            _showLoaderAction.Invoke(true);
+            System.Windows.Application.Current.Dispatcher.Invoke(delegate {_showLoaderAction.Invoke(true); });
             await Task.Run(() =>
             {
-                do
-                {
-                    Processes = new ObservableCollection<Process>(ProcessDb.Processes.Values);
-                    Thread.Sleep(5000);
-                } while (Processes.Count == 0);
-
+                Processes = new ObservableCollection<Process>(ProcessDb.Processes.Values);
             });
-            _showLoaderAction.Invoke(false);
+            _updateThread.Start();
+            Thread.Sleep(5000);
+            System.Windows.Application.Current.Dispatcher.Invoke(delegate { _showLoaderAction.Invoke(false); });
         }
 
         internal void Close()

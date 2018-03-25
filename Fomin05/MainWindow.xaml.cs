@@ -9,8 +9,8 @@ namespace Fomin05
     /// </summary>
     internal partial class MainWindow : Window
     {
-        private ProcessesListView _processesListView;
         private ImageAwesome _loader;
+        private ProcessesListView _processesListView;
 
         public MainWindow()
         {
@@ -25,7 +25,6 @@ namespace Fomin05
                 _processesListView = new ProcessesListView(ShowLoader);
             MainGrid.Children.Add(_processesListView);
         }
-
 
         protected override void OnClosing(CancelEventArgs e)
         {

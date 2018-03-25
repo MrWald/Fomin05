@@ -16,7 +16,14 @@
             <ColumnDefinition Width="*"></ColumnDefinition>
             <ColumnDefinition Width="5"></ColumnDefinition>
         </Grid.ColumnDefinitions>
+
         <DataGrid Grid.Row="0" SelectionMode="Single" SelectedItem="{Binding SelectedProcess}" Grid.Column="1" Name="ProcessesDataGrid" AutoGenerateColumns="False" ItemsSource="{Binding Processes, Mode=OneWay}">
+            <DataGrid.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="Get Info" Command="{Binding GetInfoCommand}"/>
+                    <MenuItem Header="Open File Location" Command="{Binding OpenFileLocationCommand}"/>
+                </ContextMenu>
+            </DataGrid.ContextMenu>
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Process Name" IsReadOnly="True" Binding="{Binding Name}"></DataGridTextColumn>
                 <DataGridTextColumn Header="Process ID" IsReadOnly="True" Binding="{Binding Id}"></DataGridTextColumn>
@@ -29,6 +36,6 @@
                 <DataGridTextColumn Header="Run On" IsReadOnly="True" Binding="{Binding RunOn}"></DataGridTextColumn>
             </DataGrid.Columns>
         </DataGrid>
-        <Button Grid.Row="1" Grid.Column="1" Content="EndTask" IsEnabled="{Binding IsItemSelected, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" Command="{Binding EndTaskCommand}"></Button>
+        <Button Grid.Row="1" Grid.Column="1" Content="EndTask" Margin="2" IsEnabled="{Binding IsItemSelected, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" Command="{Binding EndTaskCommand}"></Button>
     </Grid>
 </UserControl>
