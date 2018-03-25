@@ -12,14 +12,12 @@ namespace Fomin05
     internal class ProcessesListViewModel : INotifyPropertyChanged
     {
         private ObservableCollection<Process> _processes;
-        private Action<bool> _showLoaderAction;
-        private Thread _updateThread;
+        private readonly Action<bool> _showLoaderAction;
+        private readonly Thread _updateThread;
+
         public ObservableCollection<Process> Processes
         {
-            get
-            {
-                return _processes;
-            }
+            get => _processes;
             private set
             {
                 _processes = value;
@@ -29,12 +27,10 @@ namespace Fomin05
 
         internal ProcessesListViewModel(Action<bool> showLoaderAction)
         {
-           _showLoaderAction = showLoaderAction;
-           
+            _showLoaderAction = showLoaderAction;
             _updateThread = new Thread(UpdateUsers);
             InitializeUsers();
             _updateThread.Start();
-            
         }
 
         private async void UpdateUsers()
@@ -43,18 +39,16 @@ namespace Fomin05
             {
                 await Task.Run(() =>
                 {
-                    App.Current.Dispatcher.Invoke((Action)delegate
+                    System.Windows.Application.Current.Dispatcher.Invoke(delegate
                     {
-                        List<Process> toAdd;
-                        List<Process> toRemove;
                         try
                         {
-                            toRemove = new List<Process>(Processes.Where(proc => !ProcessDb.Processes.ContainsKey(proc.Id)));
+                            List<Process> toRemove = new List<Process>(Processes.Where(proc => !ProcessDb.Processes.ContainsKey(proc.Id)));
                             foreach (Process proc in toRemove)
                             {
                                 Processes.Remove(proc);
                             }
-                            toAdd = new List<Process>(ProcessDb.Processes.Values.Where(proc => !Processes.Contains(proc)));
+                            List<Process> toAdd = new List<Process>(ProcessDb.Processes.Values.Where(proc => !Processes.Contains(proc)));
                             foreach (Process proc in toAdd)
                             {
                                 Processes.Add(proc);
@@ -62,9 +56,12 @@ namespace Fomin05
                         }
                         catch (NullReferenceException)
                         {
-                           return;
+                            return;
                         }
-                        
+                        //catch (NullE)
+                        //{
+                        //    return;
+                        // }
                     });
 
                 });
@@ -78,6 +75,11 @@ namespace Fomin05
             _showLoaderAction.Invoke(true);
             await Task.Run(() => { Processes = new ObservableCollection<Process>(ProcessDb.Processes.Values); });
             _showLoaderAction.Invoke(false);
+        }
+
+        internal void Close()
+        {
+            _updateThread.Join(100);
         }
 
         #region Implementation

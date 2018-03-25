@@ -1,24 +1,31 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Management;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace Fomin05
 {
-    static class ProcessDb
+    internal static class ProcessDb
     {
-        private static Thread _updateDbThread;
-        private static Thread _updateEntriesThread;
+        private static readonly Thread UpdateDbThread;
+        private static readonly Thread UpdateEntriesThread;
         public static Dictionary<int, Process> Processes;
 
         static ProcessDb()
         {
             Processes = new Dictionary<int, Process>();
-            _updateEntriesThread = new Thread(UpdateEntries);
-            _updateDbThread = new Thread(UpdateDb);
-            _updateDbThread.Start();
-            _updateEntriesThread.Start();
+            UpdateEntriesThread = new Thread(UpdateEntries);
+            UpdateDbThread = new Thread(UpdateDb);
+            UpdateDbThread.Start();
+            UpdateEntriesThread.Start();
+        }
+
+        internal static void Close()
+        {
+            UpdateDbThread.Join(100);
+            UpdateEntriesThread.Join(100);
         }
 
         private static async void UpdateDb()
@@ -27,23 +34,29 @@ namespace Fomin05
             {
                 await Task.Run(() =>
                 {
-                    try
+                    List<System.Diagnostics.Process> processes = System.Diagnostics.Process.GetProcesses().ToList();
+                    IEnumerable<int> keys = Processes.Keys.ToList().Where(id => processes.All(proc => proc.Id != id));
+                    foreach (int key in keys)
                     {
-                        List<System.Diagnostics.Process> processes = System.Diagnostics.Process.GetProcesses().ToList();
-                        IEnumerable<int> keys = Processes.Keys.ToList().Where(id => processes.All(proc => proc.Id != id));
-                        foreach (int key in keys)
-                        {
-                            Processes.Remove(key);
-                        }
-                        foreach (System.Diagnostics.Process proc in processes)
-                        {
-                            if (!Processes.ContainsKey(proc.Id))
-                                Processes[proc.Id] = new Process(proc);
-                        }
+                        Processes.Remove(key);
                     }
-                    catch (Exception)
+                    foreach (System.Diagnostics.Process proc in processes)
                     {
-                        return;
+                        if (!Processes.ContainsKey(proc.Id))
+                        {
+                            try
+                            {
+                                Processes[proc.Id] = new Process(proc);
+                            }
+                            catch (InvalidOperationException)
+                            {
+                                continue;
+                            }
+                            catch (ManagementException)
+                            {
+                                continue;
+                            }
+                        }
                     }
                 });
                 Thread.Sleep(5000);
@@ -68,8 +81,8 @@ namespace Fomin05
                             Processes.Remove(id);
                             continue;
                         }
-                        Processes[id].CpuTaken = $"{Processes[id].CpuCounter.NextValue()} %";
-                        Processes[id].RamTaken = $"{Processes[id].RamCounter.NextValue() / 1024 / 1024} MB";
+                        Processes[id].CpuTaken = (int)Processes[id].CpuCounter.NextValue();
+                        Processes[id].RamTaken = (int)(Processes[id].RamCounter.NextValue() / 1024 / 1024);
                         Processes[id].ThreadsNumber = pr.Threads.Count;
                     }
                 });

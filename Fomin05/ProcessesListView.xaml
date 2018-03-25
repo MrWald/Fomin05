@@ -21,8 +21,8 @@
                 <DataGridTextColumn Header="Process Name" IsReadOnly="True" Binding="{Binding Name}"></DataGridTextColumn>
                 <DataGridTextColumn Header="Process ID" IsReadOnly="True" Binding="{Binding Id}"></DataGridTextColumn>
                 <DataGridTextColumn Header="Is Active" IsReadOnly="True" Binding="{Binding IsActive}"></DataGridTextColumn>
-                <DataGridTextColumn Header="% CPU" IsReadOnly="True" Binding="{Binding CpuTaken}"></DataGridTextColumn>
-                <DataGridTextColumn Header="RAM" IsReadOnly="True" Binding="{Binding RamTaken}"></DataGridTextColumn>
+                <DataGridTextColumn Header="%, CPU" IsReadOnly="True" Binding="{Binding CpuTaken}"></DataGridTextColumn>
+                <DataGridTextColumn Header="MB, RAM" IsReadOnly="True" Binding="{Binding RamTaken}"></DataGridTextColumn>
                 <DataGridTextColumn Header="Threads Created" IsReadOnly="True" Binding="{Binding ThreadsNumber}"></DataGridTextColumn>
                 <DataGridTextColumn Header="User" IsReadOnly="True" Binding="{Binding Username}"></DataGridTextColumn>
                 <DataGridTextColumn Header="File Path" IsReadOnly="True" Binding="{Binding FilePath}"></DataGridTextColumn>

@@ -8,10 +8,15 @@ namespace Fomin05
     /// </summary>
     internal partial class ProcessesListView : UserControl
     {
-        public ProcessesListView(Action<bool> showLoaderAction)
+        internal ProcessesListView(Action<bool> showLoaderAction)
         {
             InitializeComponent();
             DataContext = new ProcessesListViewModel(showLoaderAction);
+        }
+
+        internal void Close()
+        {
+            ((ProcessesListViewModel)DataContext).Close();
         }
     }
 }

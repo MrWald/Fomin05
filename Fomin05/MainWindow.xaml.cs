@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System.ComponentModel;
+using System.Windows;
 using FontAwesome.WPF;
 
 namespace Fomin05
@@ -6,7 +7,7 @@ namespace Fomin05
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    internal partial class MainWindow : Window
     {
         private ProcessesListView _processesListView;
         private ImageAwesome _loader;
@@ -23,6 +24,14 @@ namespace Fomin05
             if (_processesListView == null)
                 _processesListView = new ProcessesListView(ShowLoader);
             MainGrid.Children.Add(_processesListView);
+        }
+
+
+        protected override void OnClosing(CancelEventArgs e)
+        {
+            _processesListView?.Close();
+            ProcessDb.Close();
+            base.OnClosing(e);
         }
 
         private void ShowLoader(bool isShow)

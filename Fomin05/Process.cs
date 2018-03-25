@@ -1,19 +1,17 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Management;
-using System.Threading;
 
 namespace Fomin05
 {
-    class Process
+    internal class Process
     {
         #region Properties
 
-        public PerformanceCounter RamCounter { get; }
+        internal PerformanceCounter RamCounter { get; }
 
-        public PerformanceCounter CpuCounter { get; }
+        internal PerformanceCounter CpuCounter { get; }
 
         public string Name
         {
@@ -30,13 +28,13 @@ namespace Fomin05
             get;
         }
 
-        public string CpuTaken
+        public int CpuTaken
         {
             get;
             set;
         }
 
-        public string RamTaken
+        public int RamTaken
         {
             get;
             set;
@@ -71,8 +69,8 @@ namespace Fomin05
             Name = systemProcess.ProcessName;
             Id = systemProcess.Id;
             IsActive = systemProcess.Responding;
-            CpuTaken = $"{CpuCounter.NextValue()} %";
-            RamTaken = $"{RamCounter.NextValue() / 1024 / 1024} MB";
+            CpuTaken = (int)CpuCounter.NextValue();
+            RamTaken = (int)(RamCounter.NextValue() / 1024 / 1024);
             ThreadsNumber = systemProcess.Threads.Count;
             Username = GetProcessOwner(systemProcess.Id);
             try
@@ -83,7 +81,6 @@ namespace Fomin05
             {
                 FilePath = e.Message;
             }
-
             try
             {
                 RunOn = systemProcess.StartTime.ToString();
@@ -113,17 +110,5 @@ namespace Fomin05
 
             return "NO OWNER";
         }
-
-        /*internal static List<Process> GetProcesses()
-        {
-            System.Diagnostics.Process[] processes = System.Diagnostics.Process.GetProcesses();
-            List<Process> myProcesses = new List<Process>(processes.Length);
-            for (int i=0;i<processes.Length;++i)
-            {
-                myProcesses.Add(new Process(ref processes[i]));
-            }
-            return myProcesses;
-        }*/
-        
     }
 }
