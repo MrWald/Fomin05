@@ -11,7 +11,8 @@ namespace Fomin05
     {
         private static readonly Thread UpdateDbThread;
         private static readonly Thread UpdateEntriesThread;
-        public static Dictionary<int, Process> Processes;
+
+        internal static Dictionary<int, Process> Processes { get; set; }
 
         static ProcessDb()
         {
@@ -24,8 +25,8 @@ namespace Fomin05
 
         internal static void Close()
         {
-            UpdateDbThread.Join(100);
-            UpdateEntriesThread.Join(100);
+            UpdateDbThread.Join(4000);
+            UpdateEntriesThread.Join(1500);
         }
 
         private static async void UpdateDb()
@@ -48,13 +49,17 @@ namespace Fomin05
                             {
                                 Processes[proc.Id] = new Process(proc);
                             }
-                            catch (InvalidOperationException)
+                            catch (InvalidOperationException e)
                             {
-                                continue;
+                                Console.WriteLine(e.Message);
                             }
-                            catch (ManagementException)
+                            catch (ManagementException e)
                             {
-                                continue;
+                                Console.WriteLine(e.Message);
+                            }
+                            catch (NullReferenceException e)
+                            {
+                                Console.WriteLine(e.Message);
                             }
                         }
                     }
@@ -86,7 +91,6 @@ namespace Fomin05
                         Processes[id].ThreadsNumber = pr.Threads.Count;
                     }
                 });
-                
                 Thread.Sleep(2000);
             }
         }

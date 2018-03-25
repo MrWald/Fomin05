@@ -21,7 +21,6 @@ namespace Fomin05
                 Grid.SetColumn(loader, 0);
                 Grid.SetColumnSpan(loader, 10);
                 Grid.SetRowSpan(loader, 10);
-                Panel.SetZIndex(loader, 100);
                 loader.HorizontalAlignment = HorizontalAlignment.Center;
                 loader.VerticalAlignment = VerticalAlignment.Center;
             }
