@@ -21,16 +21,16 @@
         <Label Grid.Column="1" Grid.Row="0" Content="Modules" HorizontalAlignment="Center"></Label>
         <DataGrid Grid.Column="1" Grid.Row="1" AutoGenerateColumns="False" ItemsSource="{Binding Modules, Mode=OneWay}">
             <DataGrid.Columns>
-                <DataGridTextColumn Header="Name" IsReadOnly="True" Binding="{Binding ModuleName}"></DataGridTextColumn>
-                <DataGridTextColumn Header="File Path" IsReadOnly="True" Binding="{Binding FileName}"></DataGridTextColumn>
+                <DataGridTextColumn Header="Name" MaxWidth="300" IsReadOnly="True" Binding="{Binding ModuleName}"></DataGridTextColumn>
+                <DataGridTextColumn Header="File Path" MaxWidth="300" IsReadOnly="True" Binding="{Binding FileName}"></DataGridTextColumn>
             </DataGrid.Columns>
         </DataGrid>
         <Label Grid.Column="3" Grid.Row="0" Content="Threads" HorizontalAlignment="Center"></Label>
         <DataGrid Grid.Column="3" Grid.Row="1" AutoGenerateColumns="False" ItemsSource="{Binding Threads, Mode=OneWay}">
             <DataGrid.Columns>
-                <DataGridTextColumn Header="ID" IsReadOnly="True" Binding="{Binding Id}"></DataGridTextColumn>
-                <DataGridTextColumn Header="State" IsReadOnly="True" Binding="{Binding ThreadState}"></DataGridTextColumn>
-                <DataGridTextColumn Header="Created On" IsReadOnly="True" Binding="{Binding StartTime}"></DataGridTextColumn>
+                <DataGridTextColumn Header="ID" MaxWidth="300" IsReadOnly="True" Binding="{Binding Id}"></DataGridTextColumn>
+                <DataGridTextColumn Header="State" MaxWidth="300" IsReadOnly="True" Binding="{Binding ThreadState}"></DataGridTextColumn>
+                <DataGridTextColumn Header="Created On" MaxWidth="300" IsReadOnly="True" Binding="{Binding StartTime}"></DataGridTextColumn>
             </DataGrid.Columns>
         </DataGrid>
     </Grid>

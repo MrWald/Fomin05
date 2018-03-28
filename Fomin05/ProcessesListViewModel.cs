@@ -149,6 +149,10 @@ namespace Fomin05
                         {
                             Console.WriteLine(e.Message);
                         }
+                        catch (InvalidOperationException e)
+                        {
+                            Console.WriteLine(e.Message);
+                        }
                     });
                 });
                 Thread.Sleep(4000);

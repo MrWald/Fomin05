@@ -5,7 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:Fomin05"
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800" x:ClassModifier="internal">
+             d:DesignHeight="450" d:DesignWidth="1400" x:ClassModifier="internal">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="*"></RowDefinition>
@@ -25,15 +25,15 @@
                 </ContextMenu>
             </DataGrid.ContextMenu>
             <DataGrid.Columns>
-                <DataGridTextColumn Header="Process Name" IsReadOnly="True" Binding="{Binding Name}"></DataGridTextColumn>
-                <DataGridTextColumn Header="Process ID" IsReadOnly="True" Binding="{Binding Id}"></DataGridTextColumn>
-                <DataGridTextColumn Header="Is Active" IsReadOnly="True" Binding="{Binding IsActive}"></DataGridTextColumn>
-                <DataGridTextColumn Header="%, CPU" IsReadOnly="True" Binding="{Binding CpuTaken}"></DataGridTextColumn>
-                <DataGridTextColumn Header="MB, RAM" IsReadOnly="True" Binding="{Binding RamTaken}"></DataGridTextColumn>
-                <DataGridTextColumn Header="Threads Created" IsReadOnly="True" Binding="{Binding ThreadsNumber}"></DataGridTextColumn>
-                <DataGridTextColumn Header="User" IsReadOnly="True" Binding="{Binding Username}"></DataGridTextColumn>
-                <DataGridTextColumn Header="File Path" IsReadOnly="True" Binding="{Binding FilePath}"></DataGridTextColumn>
-                <DataGridTextColumn Header="Run On" IsReadOnly="True" Binding="{Binding RunOn}"></DataGridTextColumn>
+                <DataGridTextColumn Header="Process Name" MaxWidth="200" IsReadOnly="True" Binding="{Binding Name}"></DataGridTextColumn>
+                <DataGridTextColumn Header="Process ID" MaxWidth="155" IsReadOnly="True" Binding="{Binding Id}"></DataGridTextColumn>
+                <DataGridTextColumn Header="Is Active" MaxWidth="155" IsReadOnly="True" Binding="{Binding IsActive}"></DataGridTextColumn>
+                <DataGridTextColumn Header="%, CPU" MaxWidth="155" IsReadOnly="True" Binding="{Binding CpuTaken}"></DataGridTextColumn>
+                <DataGridTextColumn Header="MB, RAM" MaxWidth="155" IsReadOnly="True" Binding="{Binding RamTaken}"></DataGridTextColumn>
+                <DataGridTextColumn Header="Threads Created" MaxWidth="155" IsReadOnly="True" Binding="{Binding ThreadsNumber}"></DataGridTextColumn>
+                <DataGridTextColumn Header="User" MaxWidth="155" IsReadOnly="True" Binding="{Binding Username}"></DataGridTextColumn>
+                <DataGridTextColumn Header="File Path" MaxWidth="550" IsReadOnly="True" Binding="{Binding FilePath}"></DataGridTextColumn>
+                <DataGridTextColumn Header="Run On" MaxWidth="155" IsReadOnly="True" Binding="{Binding RunOn}"></DataGridTextColumn>
             </DataGrid.Columns>
         </DataGrid>
         <Button Grid.Row="1" Grid.Column="1" Content="EndTask" Margin="2" IsEnabled="{Binding IsItemSelected, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" Command="{Binding EndTaskCommand}"></Button>
