@@ -12,7 +12,7 @@ namespace Fomin05
 {
     internal class ProcessesListViewModel : INotifyPropertyChanged
     {
-        private Action<bool> _showLoaderAction;
+        private readonly Action<bool> _showLoaderAction;
         private ObservableCollection<Process> _processes;
         private readonly Thread _updateThread;
         private Process _selectedProcess;
@@ -167,7 +167,8 @@ namespace Fomin05
                 Processes = new ObservableCollection<Process>(ProcessDb.Processes.Values);
             });
             _updateThread.Start();
-            Thread.Sleep(5000);
+            while(ProcessDb.Processes.Count==0)
+                Thread.Sleep(3000);
             System.Windows.Application.Current.Dispatcher.Invoke(delegate { _showLoaderAction.Invoke(false); });
         }
 

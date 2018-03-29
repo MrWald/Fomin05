@@ -99,7 +99,7 @@ namespace Fomin05
 
             foreach (ManagementObject obj in processList)
             {
-                string[] argList = new string[] { string.Empty, string.Empty };
+                string[] argList = { string.Empty, string.Empty };
                 int returnVal = Convert.ToInt32(obj.InvokeMethod("GetOwner", argList));
                 if (returnVal == 0)
                 {
