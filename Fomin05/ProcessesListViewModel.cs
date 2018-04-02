@@ -56,22 +56,19 @@ namespace Fomin05
         public RelayCommand GetInfoCommand => _getInfoCommand ?? (_getInfoCommand = new RelayCommand(GetInfoImpl));
         public RelayCommand OpenFileLocationCommand => _openFileLocationCommand ?? (_openFileLocationCommand = new RelayCommand(OpenFileLocationImpl));
 
-        private async void EndTaskImpl(object o)
+        private void EndTaskImpl(object o)
         {
-            await Task.Run(() =>
+            System.Windows.Application.Current.Dispatcher.Invoke(delegate
             {
-                System.Windows.Application.Current.Dispatcher.Invoke(delegate
+                System.Diagnostics.Process process = System.Diagnostics.Process.GetProcessById(SelectedProcess.Id);
+                try
                 {
-                    System.Diagnostics.Process process = System.Diagnostics.Process.GetProcessById(SelectedProcess.Id);
-                    try
-                    {
-                        process.Kill();
-                    }
-                    catch (Win32Exception e)
-                    {
-                        MessageBox.Show(e.Message);
-                    }
-                });
+                    process.Kill();
+                }
+                catch (Win32Exception e)
+                {
+                    MessageBox.Show(e.Message);
+                }
             });
         }
 
@@ -130,15 +127,23 @@ namespace Fomin05
                     {
                         try
                         {
-                            List<Process> toRemove = new List<Process>(Processes.Where(proc => !ProcessDb.Processes.ContainsKey(proc.Id)));
-                            foreach (Process proc in toRemove)
+                            lock (Processes)
                             {
-                                Processes.Remove(proc);
-                            }
-                            List<Process> toAdd = new List<Process>(ProcessDb.Processes.Values.Where(proc => !Processes.Contains(proc)));
-                            foreach (Process proc in toAdd)
-                            {
-                                Processes.Add(proc);
+                                List<Process> toRemove =
+                                    new List<Process>(
+                                        Processes.Where(proc => !ProcessDb.Processes.ContainsKey(proc.Id)));
+                                foreach (Process proc in toRemove)
+                                {
+                                    Processes.Remove(proc);
+                                }
+
+                                List<Process> toAdd =
+                                    new List<Process>(
+                                        ProcessDb.Processes.Values.Where(proc => !Processes.Contains(proc)));
+                                foreach (Process proc in toAdd)
+                                {
+                                    Processes.Add(proc);
+                                }
                             }
                         }
                         catch (NullReferenceException e)

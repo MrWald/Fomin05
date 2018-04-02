@@ -35,31 +35,36 @@ namespace Fomin05
             {
                 await Task.Run(() =>
                 {
-                    List<System.Diagnostics.Process> processes = System.Diagnostics.Process.GetProcesses().ToList();
-                    IEnumerable<int> keys = Processes.Keys.ToList().Where(id => processes.All(proc => proc.Id != id));
-                    foreach (int key in keys)
+                    lock (Processes)
                     {
-                        Processes.Remove(key);
-                    }
-                    foreach (System.Diagnostics.Process proc in processes)
-                    {
-                        if (!Processes.ContainsKey(proc.Id))
+                        List<System.Diagnostics.Process> processes = System.Diagnostics.Process.GetProcesses().ToList();
+                        IEnumerable<int> keys = Processes.Keys.ToList()
+                            .Where(id => processes.All(proc => proc.Id != id));
+                        foreach (int key in keys)
                         {
-                            try
+                            Processes.Remove(key);
+                        }
+
+                        foreach (System.Diagnostics.Process proc in processes)
+                        {
+                            if (!Processes.ContainsKey(proc.Id))
                             {
-                                Processes[proc.Id] = new Process(proc);
-                            }
-                            catch (InvalidOperationException e)
-                            {
-                                Console.WriteLine(e.Message);
-                            }
-                            catch (ManagementException e)
-                            {
-                                Console.WriteLine(e.Message);
-                            }
-                            catch (NullReferenceException e)
-                            {
-                                Console.WriteLine(e.Message);
+                                try
+                                {
+                                    Processes[proc.Id] = new Process(proc);
+                                }
+                                catch (InvalidOperationException e)
+                                {
+                                    Console.WriteLine(e.Message);
+                                }
+                                catch (ManagementException e)
+                                {
+                                    Console.WriteLine(e.Message);
+                                }
+                                catch (NullReferenceException e)
+                                {
+                                    Console.WriteLine(e.Message);
+                                }
                             }
                         }
                     }
@@ -74,21 +79,25 @@ namespace Fomin05
             {
                 await Task.Run(() =>
                 {
-                    foreach (int id in Processes.Keys.ToList())
+                    lock (Processes)
                     {
-                        System.Diagnostics.Process pr;
-                        try
+                        foreach (int id in Processes.Keys.ToList())
                         {
-                            pr = System.Diagnostics.Process.GetProcessById(id);
+                            System.Diagnostics.Process pr;
+                            try
+                            {
+                                pr = System.Diagnostics.Process.GetProcessById(id);
+                            }
+                            catch (ArgumentException)
+                            {
+                                Processes.Remove(id);
+                                continue;
+                            }
+
+                            Processes[id].CpuTaken = (int) Processes[id].CpuCounter.NextValue();
+                            Processes[id].RamTaken = (int) (Processes[id].RamCounter.NextValue() / 1024 / 1024);
+                            Processes[id].ThreadsNumber = pr.Threads.Count;
                         }
-                        catch (ArgumentException)
-                        {
-                            Processes.Remove(id);
-                            continue;
-                        }
-                        Processes[id].CpuTaken = (int)Processes[id].CpuCounter.NextValue();
-                        Processes[id].RamTaken = (int)(Processes[id].RamCounter.NextValue() / 1024 / 1024);
-                        Processes[id].ThreadsNumber = pr.Threads.Count;
                     }
                 });
                 Thread.Sleep(2000);
